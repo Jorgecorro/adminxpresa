@@ -24,7 +24,7 @@ interface ProductTableProps {
 
 const productOptions = [
     { value: 'playera basica', label: 'Playera Basica' },
-    { value: 'manga larga', label: 'Playera Basica Manga Larga' },
+    { value: 'playera manga larga', label: 'Playera Basica Manga Larga' },
     { value: 'playera polo', label: 'Playera Polo' },
     { value: 'playera polo manga larga', label: 'Playera Polo Manga Larga' },
     { value: 'sudadera', label: 'Sudadera' },
