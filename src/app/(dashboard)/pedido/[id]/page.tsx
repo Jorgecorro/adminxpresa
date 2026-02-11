@@ -42,12 +42,13 @@ export default function PedidoDetailPage() {
                     .single();
 
                 if (orderError) throw orderError;
-                setOrder(orderData);
-                setCalcetasColor(orderData.calcetas_color || '');
-                setRegaloDetalle(orderData.regalo_detalle || '');
-                setShippingGuide(orderData.shipping_guide || '');
-                setShippingCarrier(orderData.shipping_carrier || '');
-                setNotes(orderData.notes || '');
+                const typedData = orderData as any;
+                setOrder(typedData);
+                setCalcetasColor(typedData.calcetas_color || '');
+                setRegaloDetalle(typedData.regalo_detalle || '');
+                setShippingGuide(typedData.shipping_guide || '');
+                setShippingCarrier(typedData.shipping_carrier || '');
+                setNotes(typedData.notes || '');
 
                 const { data: itemsData, error: itemsError } = await supabase
                     .from('order_items')
@@ -99,8 +100,7 @@ export default function PedidoDetailPage() {
 
             // Si el pedido no tiene número de previo, lo generamos ahora
             if (!order.previo_number) {
-                const { data: maxOrder } = await supabase
-                    .from('orders')
+                const { data: maxOrder } = await (supabase.from('orders') as any)
                     .select('previo_number')
                     .not('previo_number', 'is', null)
                     .order('previo_number', { ascending: false })
@@ -110,8 +110,7 @@ export default function PedidoDetailPage() {
                 updates.previo_number = nextNumber;
             }
 
-            const { error: updateError } = await supabase
-                .from('orders')
+            const { error: updateError } = await (supabase.from('orders') as any)
                 .update(updates)
                 .eq('id', order.id);
 
@@ -148,8 +147,7 @@ export default function PedidoDetailPage() {
                 console.log('Pedido finalizado y enviado: asignando comisión del 5%', updates.commission_earned);
             }
 
-            const { error: updateError } = await supabase
-                .from('orders')
+            const { error: updateError } = await (supabase.from('orders') as any)
                 .update(updates)
                 .eq('id', order.id);
 

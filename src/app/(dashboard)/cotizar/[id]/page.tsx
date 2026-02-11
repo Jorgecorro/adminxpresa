@@ -36,9 +36,10 @@ export default function CotizarPage() {
                     .single();
 
                 if (orderError) throw orderError;
-                setOrder(orderData);
-                setClientName(orderData.customer_name || '');
-                setClientEmail(orderData.customer_email || '');
+                const typedData = orderData as any;
+                setOrder(typedData);
+                setClientName(typedData.customer_name || '');
+                setClientEmail(typedData.customer_email || '');
 
                 // Generate quote number based on order count
                 const { count } = await supabase
@@ -70,14 +71,13 @@ export default function CotizarPage() {
 
         try {
             // Update order with client info
-            await supabase
-                .from('orders')
+            await (supabase.from('orders') as any)
                 .update({
                     customer_name: clientName,
                     customer_email: clientEmail,
                     notes: notes,
                     status: 'cotizado',
-                })
+                } as any)
                 .eq('id', order.id);
 
             // Generate PDF

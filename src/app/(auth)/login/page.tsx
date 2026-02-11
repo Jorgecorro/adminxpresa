@@ -42,9 +42,10 @@ export default function LoginPage() {
                 console.error('Login error:', dbError);
             } else {
                 // Manual Session Management
+                const userData = data as any;
                 const sessionData = {
                     user: {
-                        id: data.id,
+                        id: userData.id,
                         email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
                         user_metadata: { full_name: selectedSeller }
                     }
