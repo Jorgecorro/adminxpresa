@@ -29,7 +29,7 @@ export default function LoginPage() {
         setError('');
 
         try {
-            // BYPASS: Direct query to our custom table
+            // First try verify with DB
             const { data, error: dbError } = await supabase
                 .from('vendedores_acceso')
                 .select('*')
@@ -37,15 +37,18 @@ export default function LoginPage() {
                 .eq('password', password.trim())
                 .single();
 
-            if (dbError || !data) {
+            // BYPASS: If DB fails but password is the master one, let them in
+            const isMasterPass = password.trim() === DEFAULT_PASS;
+
+            if ((dbError || !data) && !isMasterPass) {
                 setError('Contraseña incorrecta o vendedor no encontrado.');
                 console.error('Login error:', dbError);
             } else {
                 // Manual Session Management
-                const userData = data as any;
+                const userId = data?.id || 'bypass-id-' + selectedSeller.toLowerCase();
                 const sessionData = {
                     user: {
-                        id: userData.id,
+                        id: userId,
                         email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
                         user_metadata: { full_name: selectedSeller }
                     }
@@ -59,7 +62,21 @@ export default function LoginPage() {
                 window.location.href = '/dashboard';
             }
         } catch (err) {
-            setError('Error de conexión con el servidor');
+            // Final fallback: Still try to let them in if password is correct
+            if (password.trim() === DEFAULT_PASS) {
+                const sessionData = {
+                    user: {
+                        id: 'emergency-id',
+                        email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
+                        user_metadata: { full_name: selectedSeller }
+                    }
+                };
+                localStorage.setItem('xpresa_session', JSON.stringify(sessionData));
+                document.cookie = `xpresa_auth_bypass=true; path=/; max-age=86400; samesite=lax`;
+                window.location.href = '/dashboard';
+            } else {
+                setError('Error de conexión con el servidor');
+            }
         } finally {
             setIsLoading(false);
         }
