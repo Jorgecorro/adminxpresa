@@ -36,17 +36,16 @@ export function useOrders(options: UseOrdersOptions = {}): UseOrdersReturn {
         setError(null);
 
         try {
-            // Try with standard client
+            // Try with standard client - NO ORDERING to avoid 500s
             const { data, error: fetchError } = await supabase
                 .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false });
+                .select('*');
 
             if (fetchError) {
-                console.warn('Supabase fetch failed, trying direct fallback...', fetchError);
+                console.warn('Supabase fetch failed, trying direct simple fallback...', fetchError);
 
-                // FALLBACK: Direct fetch without Supabase headers to bypass JWT issues
-                const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/orders?select=*&order=created_at.desc`);
+                // FALLBACK: Direct simple fetch, no parameters to be safe
+                const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/orders`);
                 if (!response.ok) throw new Error('Error al cargar pedidos del servidor');
                 const rawData = await response.json();
                 setAllOrders(rawData || []);
