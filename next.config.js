@@ -15,6 +15,12 @@ const nextConfig = {
                 port: '',
                 pathname: '/storage/v1/object/public/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'api1.xpresa.com.mx',
+                port: '',
+                pathname: '/storage/v1/object/public/**',
+            },
         ],
     },
 };
