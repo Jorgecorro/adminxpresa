@@ -246,7 +246,7 @@ export default function PedidoDetailPage() {
                             <div className="aspect-square rounded-xl overflow-hidden bg-background-tertiary relative border border-card-border">
                                 {order.image_url ? (
                                     <Image
-                                        src={order.image_url}
+                                        src={order.image_url.replace('api.xpresa.com.mx', 'api1.xpresa.com.mx')}
                                         alt="Frente"
                                         fill
                                         className="object-cover"
@@ -277,7 +277,7 @@ export default function PedidoDetailPage() {
                             <div className="aspect-square rounded-xl overflow-hidden bg-background-tertiary relative border border-card-border">
                                 {order.image_back_url ? (
                                     <Image
-                                        src={order.image_back_url}
+                                        src={order.image_back_url.replace('api.xpresa.com.mx', 'api1.xpresa.com.mx')}
                                         alt="Espalda"
                                         fill
                                         className="object-cover"

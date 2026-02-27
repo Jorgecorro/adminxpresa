@@ -24,7 +24,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 <div className="relative aspect-square rounded-xl overflow-hidden bg-background-tertiary mb-3">
                     {order.image_url ? (
                         <Image
-                            src={order.image_url}
+                            src={order.image_url.replace('api.xpresa.com.mx', 'api1.xpresa.com.mx')}
                             alt={displayNumber}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
