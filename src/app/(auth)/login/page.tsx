@@ -28,8 +28,24 @@ export default function LoginPage() {
         setIsLoading(true);
         setError('');
 
+        const isMasterPass = password.trim() === DEFAULT_PASS;
+
+        // EMERGENCY BYPASS: If password is correct, don't even talk to the API
+        if (isMasterPass) {
+            const sessionData = {
+                user: {
+                    id: 'bypass-id-' + selectedSeller.toLowerCase(),
+                    email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
+                    user_metadata: { full_name: selectedSeller }
+                }
+            };
+            localStorage.setItem('xpresa_session', JSON.stringify(sessionData));
+            document.cookie = `xpresa_auth_bypass=true; path=/; max-age=86400; samesite=lax`;
+            window.location.href = '/dashboard';
+            return;
+        }
+
         try {
-            // First try verify with DB
             const { data, error: dbError } = await supabase
                 .from('vendedores_acceso')
                 .select('*')
@@ -37,46 +53,23 @@ export default function LoginPage() {
                 .eq('password', password.trim())
                 .single();
 
-            // BYPASS: If DB fails but password is the master one, let them in
-            const isMasterPass = password.trim() === DEFAULT_PASS;
-
-            if ((dbError || !data) && !isMasterPass) {
+            if (dbError || !data) {
                 setError('Contraseña incorrecta o vendedor no encontrado.');
-                console.error('Login error:', dbError);
             } else {
-                // Manual Session Management
-                const userId = data?.id || 'bypass-id-' + selectedSeller.toLowerCase();
+                const userData = data as any;
                 const sessionData = {
                     user: {
-                        id: userId,
+                        id: userData.id,
                         email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
                         user_metadata: { full_name: selectedSeller }
                     }
                 };
-
                 localStorage.setItem('xpresa_session', JSON.stringify(sessionData));
-
-                // Cookie for middleware bypass
                 document.cookie = `xpresa_auth_bypass=true; path=/; max-age=86400; samesite=lax`;
-
                 window.location.href = '/dashboard';
             }
         } catch (err) {
-            // Final fallback: Still try to let them in if password is correct
-            if (password.trim() === DEFAULT_PASS) {
-                const sessionData = {
-                    user: {
-                        id: 'emergency-id',
-                        email: `${selectedSeller.toLowerCase()}@xpresa.mx`,
-                        user_metadata: { full_name: selectedSeller }
-                    }
-                };
-                localStorage.setItem('xpresa_session', JSON.stringify(sessionData));
-                document.cookie = `xpresa_auth_bypass=true; path=/; max-age=86400; samesite=lax`;
-                window.location.href = '/dashboard';
-            } else {
-                setError('Error de conexión con el servidor');
-            }
+            setError('Error de conexión con el servidor');
         } finally {
             setIsLoading(false);
         }
